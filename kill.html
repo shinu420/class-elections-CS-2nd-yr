@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Computer Science CR Election</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+    .container {
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      width: 400px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+      color: #00e6e6;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 90%;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      text-align: center;
+    }
+    .vote-btn {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 15px;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+    }
+    .vote-btn:hover {
+      transform: scale(1.05);
+    }
+    #vote-a {
+      background-color: #ff4b2b;
+      color: white;
+    }
+    #vote-b {
+      background-color: #1cb5e0;
+      color: white;
+    }
+    .vote-btn.clicked {
+      animation: pop 0.3s ease-in-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .vote-btn:disabled {
+      background-color: #888 !important;
+      cursor: not-allowed;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 15px;
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 10px;
+      display: none;
+    }
+    #voter-list {
+      margin-top: 20px;
+      font-size: 14px;
+      max-height: 150px;
+      overflow-y: auto;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 10px;
+      display: none;
+    }
+    .emoji {
+      font-size: 22px;
+      margin-right: 10px;
+    }
+    .admin-controls {
+      margin-top: 15px;
+    }
+    .admin-controls button {
+      margin: 5px;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background-color: #00e6e6;
+      color: black;
+      transition: background 0.3s;
+    }
+    .admin-controls button:hover {
+      background-color: #00cccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🖥️ CR Election - Computer Science 🗳️</h1>
+    <input type="text" id="voter-name" placeholder="Enter Your Name" maxlength="50" />
+    <button class="vote-btn" id="vote-a" onclick="castVote('a')">
+      <span class="emoji">👨‍🎓</span> Vote for Adarsh Maurya
+    </button>
+    <button class="vote-btn" id="vote-b" onclick="castVote('b')">
+      <span class="emoji">🧑‍💻</span> Vote for Ansh Srivastava
+    </button>
+    <div class="admin-controls">
+      <button onclick="showResults()">Show Result</button>
+      <button onclick="showVoterList()">Show Voter List</button>
+    </div>
+    <p id="result"></p>
+    <div id="voter-list"></div>
+  </div>
+
+  <script>
+    let votes = { a: 0, b: 0 };
+    let votedNames = new Set();
+    let buttons = document.querySelectorAll('.vote-btn');
+    let resultBox = document.getElementById('result');
+    let voterListBox = document.getElementById('voter-list');
+
+    function castVote(candidate) {
+      const nameInput = document.getElementById('voter-name');
+      const voterName = nameInput.value.trim().toLowerCase();
+
+      if (!voterName) {
+        alert("Please enter your name before voting.");
+        return;
+      }
+
+      if (votedNames.has(voterName)) {
+        alert("You have already voted.");
+        return;
+      }
+
+      if (votedNames.size >= 70) {
+        alert("Maximum 70 voters reached.");
+        return;
+      }
+
+      votedNames.add(voterName);
+      votes[candidate]++;
+
+      const btn = candidate === 'a' ? document.getElementById('vote-a') : document.getElementById('vote-b');
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 300);
+
+      disableButtons();
+      setTimeout(enableButtons, 3000);
+
+      nameInput.value = "";
+    }
+
+    function disableButtons() {
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+      });
+    }
+
+    function enableButtons() {
+      buttons.forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      });
+    }
+
+    function showResults() {
+      let total = votes.a + votes.b;
+      if (total === 0) {
+        resultBox.textContent = "No votes yet.";
+      } else {
+        let percentA = ((votes.a / total) * 100).toFixed(1);
+        let percentB = ((votes.b / total) * 100).toFixed(1);
+        resultBox.innerHTML = `👨‍🎓 <b>Adarsh Maurya:</b> ${percentA}% <br> 🧑‍💻 <b>Ansh Srivastava:</b> ${percentB}%`;
+      }
+      resultBox.style.display = 'block';
+    }
+
+    function showVoterList() {
+      if (votedNames.size === 0) {
+        voterListBox.innerHTML = "No votes cast yet.";
+      } else {
+        const names = Array.from(votedNames).map((name, index) => `${index + 1}. ${name}`).join('<br>');
+        voterListBox.innerHTML = `<b>🧾 Voter List:</b><br>${names}`;
+      }
+      voterListBox.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
